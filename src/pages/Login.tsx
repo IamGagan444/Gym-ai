@@ -2,16 +2,29 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useLoginUserMutation } from '../redux/productApi'
+import Cookie from "js-cookie"
 
 const LoginPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+ const [loginUser,{isError,isLoading}]= useLoginUserMutation()
+
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault()
   
-    console.log(isLogin ? 'Logging in' : 'Signing up', { email, password })
+    try {
+      const data = await loginUser({ email, password }).unwrap();
+      console.log(data.data);
+      Cookie.set("accessToken", data?.data?.accessToken,{ expires: 1 });
+      //set the data in cookies
+     
+      console.log("User logged in successfully!");
+    } catch (err) {
+      console.error("Failed to log in user: ", err);
+    }
   }
 
   const toggleMode = () => {
